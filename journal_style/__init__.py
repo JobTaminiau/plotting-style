@@ -45,6 +45,18 @@ JOURNAL_WIDTHS_MM = {
 
 MM_PER_INCH = 25.4
 
+# Default colorblind-friendly palette (Wong, 2011 — Nature Methods 8, 441)
+PALETTE = [
+    "#0072B2",  # blue
+    "#D55E00",  # vermillion
+    "#009E73",  # bluish green
+    "#CC79A7",  # reddish purple
+    "#E69F00",  # orange
+    "#56B4E9",  # sky blue
+    "#F0E442",  # yellow
+    "#000000",  # black
+]
+
 
 def mm_to_inches(mm: float) -> float:
     return mm / MM_PER_INCH
@@ -60,6 +72,7 @@ def set_journal_style(
     tick_length: float = 2.5,
     color: str = "black",
     font_family: str = "sans-serif",
+    palette: list[str] | None = None,
 ):
     """
     Sets matplotlib rcParams to publication-appropriate defaults.
@@ -77,11 +90,16 @@ def set_journal_style(
         Default text/line color.
     font_family : str
         Font family. 'sans-serif' is safe; set to 'serif' for some journals.
+    palette : list of str or None
+        List of hex color strings for the default color cycle.
+        If None, uses PALETTE (colorblind-friendly, Wong 2011).
 
     Example
     -------
     >>> set_journal_style(base_font_size=7, line_width=0.5)
     """
+    if palette is None:
+        palette = PALETTE
 
     params = {
         # --- Font ---
@@ -120,6 +138,9 @@ def set_journal_style(
         "axes.labelcolor":      color,
         "xtick.color":          color,
         "ytick.color":          color,
+
+        # --- Color cycle ---
+        "axes.prop_cycle":      mpl.cycler(color=palette),
 
         # --- Axes style ---
         "axes.spines.top":      False,   # clean look — remove top spine
@@ -245,8 +266,6 @@ if __name__ == "__main__":
 
     # Apply journal style globally
     set_journal_style(base_font_size=7, line_width=0.5)
-
-    PALETTE = ["#ffb3ba", "#ffffba", "#bae1ff"]
 
     # Create a 1×4 figure at 178 mm wide (Elsevier full width)
     fig, axes = journal_figure(width_mm=178, aspect_ratio=0.28, ncols=4)
